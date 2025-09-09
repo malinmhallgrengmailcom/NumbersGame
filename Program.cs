@@ -1,10 +1,13 @@
-﻿namespace NumbersGame
+﻿using System.ComponentModel;
+
+namespace NumbersGame
 {
     internal class Program
     {
         
         static void Main(string[] args)
         {
+            //Settings up all the variables that are needed globally
             bool gameOngoing = true; 
             bool correctGuess = false;
             bool isAtGameStart = true;
@@ -14,20 +17,27 @@
             int target = 0;
 
             
-
+            //The game loop, quits if gameOngoing is false
             while (gameOngoing)
             {
+                //Only run game start effects if we're at game start
+                //Sets up the target, amount of tries and prints a greeting
                 if (isAtGameStart)
                 {
                     Console.WriteLine("Välkommen! Jag tänker på ett nummer. Kan du gissa vilket?");
-                    var targetAndAttempts = GenerateRange();
+                    var targetAndAttempts = GenerateDifficulty();
 
                     target = targetAndAttempts.Item1;
                     attempts = targetAndAttempts.Item2;
                     isAtGameStart = false;
                 }
 
-
+                //Makes sure that the default is that we do not have a valid input
+                //Once we have a valid input, evaluates input against target
+                //Informs the player if the guess is correct or not 
+                //Once game ends, after correct guess or running out of attempts
+                //Calls method to ask if player wants to restart game
+                //And resets values
                 bool validInput = false;
 
                 while (!validInput)
@@ -63,6 +73,10 @@
                         else
                         {
                             Console.WriteLine("Nope, försök igen!");
+                            if (IsClose(target, currentGuess))
+                            {
+                                Console.WriteLine("...Men du var rätt nära nu!");
+                            }
                             validInput = int.TryParse(Console.ReadLine(), out currentGuess);
                         }
                     }
@@ -87,26 +101,25 @@
             }
         }
 
+        //Method to evaluate whether a guess is correct or not
         static bool CheckGuess(int targetNumber, int guessedNamber)
         {
             
             if (guessedNamber < targetNumber)
             {
-                //return "Ditt number är lite för lågt";
                 return false;
             }
             else if (guessedNamber > targetNumber)
             {
-                //return "Ditt nummer är lite för högt";
                 return false;
             }
             else
             {
-                //return "Woohoo! Du klarade det!";
                 return true;
             }
         }
 
+        //Method to evaluate whether a wrong guess was close or not
         static bool IsClose(int targetNumber, int guessedNumber)
         {
             if (targetNumber - guessedNumber <= 2 && targetNumber - guessedNumber >= -2)
@@ -119,7 +132,10 @@
             }
         }
 
-        static (int target, int amountAttempts) GenerateRange()
+
+        //Method to generate numbers for game difficulty, attempts and target
+        //Informs the player of what their chosen difficulty means
+        static (int target, int amountAttempts) GenerateDifficulty()
         {
             bool difficultyInput = false;
             int difficultySetting = 0;
@@ -174,6 +190,7 @@
             return targetAndAttempts;
         }
 
+        //Prompts the player to either restart or exit the game
         static bool ContinuePlaying()
         {
             bool inputGiven = false;
