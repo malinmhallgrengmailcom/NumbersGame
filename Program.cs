@@ -72,7 +72,7 @@ namespace NumbersGame
                         }
                         else
                         {
-                            Console.WriteLine("Nope, försök igen!");
+                            Console.WriteLine(RandomizeResponse(target, currentGuess));
                             if (IsClose(target, currentGuess))
                             {
                                 Console.WriteLine("...Men du var rätt nära nu!");
@@ -82,19 +82,42 @@ namespace NumbersGame
                     }
                     else 
                     {
-                        Console.WriteLine("Tyvärr, du lyckades inte gissa talet på fem försök!");
-                        if (ContinuePlaying())
+                        correctGuess = CheckGuess(target, currentGuess);
+                        if (correctGuess)
                         {
-                            amountTries = 1;
-                            gameOngoing = true;
-                            isAtGameStart = true;
-                            correctGuess = false;
-                            break;
+                            Console.WriteLine("Det var i grevens tid, men du gissade rätt! Snyggt jobbat!");
+
+                            if (ContinuePlaying())
+                            {
+                                amountTries = 1;
+                                gameOngoing = true;
+                                isAtGameStart = true;
+                                correctGuess = false;
+                                break;
+                            }
+                            else
+                            {
+                                gameOngoing = false;
+                                break;
+                            }
                         }
+
                         else
                         {
-                            gameOngoing = false;
-                            break;
+                            Console.WriteLine("Tyvärr, du lyckades inte gissa talet på fem försök!");
+                            if (ContinuePlaying())
+                            {
+                                amountTries = 1;
+                                gameOngoing = true;
+                                isAtGameStart = true;
+                                correctGuess = false;
+                                break;
+                            }
+                            else
+                            {
+                                gameOngoing = false;
+                                break;
+                            }
                         }
                     } 
                 }
@@ -132,6 +155,24 @@ namespace NumbersGame
             }
         }
 
+        static string RandomizeResponse(int targetNumber, int guessedNumber)
+        {
+            string[] belowResponses = { "Nej, ditt nummer är för lågt, gissa igen!", "Inte riktigt, mitt nummer är högre, försök igen!", "Bra gissat, men mitt tal är inte så lågt", "Bra jobbat... haha, gotcha! För lågt, gissa igen!", "För låååågt! Prova igen!"};
+            string[] aboveResponses = { "Ditt nummer är högre än mitt! Prova igen!", "Nu gissade du för högt, försök igen!", "Njae... inte riktigt, mitt nummer är lägre, försök igen!", "För högt! Testa igen med ett lägre nummer", "Bra gissat, men fel tyvärr, jag tänker på ett lägre tal" };
+
+            Random random = new Random();
+            int responseSelection = random.Next(0, 5);
+
+            if (targetNumber < guessedNumber)
+            {
+                return aboveResponses[responseSelection];
+            }
+            else
+            {
+                return belowResponses[responseSelection];
+            }
+        }
+
 
         //Method to generate numbers for game difficulty, attempts and target
         //Informs the player of what their chosen difficulty means
@@ -161,7 +202,7 @@ namespace NumbersGame
                 difficultyText = "Lätt";
 
                 minRange = 1;
-                maxRange = 10;
+                maxRange = 11;
                 amountAttempts = 5;
             }
             else if (difficultySetting == 2)
@@ -169,7 +210,7 @@ namespace NumbersGame
                 difficultyText = "Medelsvår";
 
                 minRange = 1;
-                maxRange = 20;
+                maxRange = 21;
                 amountAttempts = 3;
             }
             else
@@ -177,11 +218,12 @@ namespace NumbersGame
                 difficultyText = "Svår";
 
                 minRange = 1;
-                maxRange = 50;
+                maxRange = 51;
                 amountAttempts = 3;
             }
 
-            Console.WriteLine($"Okej, vi kör en {difficultyText} omgång, talet är mellan {minRange} och {maxRange}! Du har {amountAttempts} försök på dig!");
+            //Reminnder that - 1 must be kept as maxValue of a random is exclusive, and minValue is inclusive
+            Console.WriteLine($"Okej, vi kör en {difficultyText} omgång, talet är mellan {minRange} och {maxRange - 1}! Du har {amountAttempts} försök på dig!");
 
             Random random = new Random();
             int target = random.Next(minRange, maxRange);
