@@ -56,6 +56,13 @@ namespace NumbersGame
                         {
                             Console.WriteLine("Snyggt, du gissade rätt!");
 
+                            //This code is repeated to many  times and would
+                            //benefit from being broken out into a class with methods
+                            //A class called GameStart making all central variables
+                            //more readily available would make for an easier time 
+                            //maintaining without having to repeat code or returning
+                            //arrays or tuples and hoping the data is consistently 
+                            //structured and that indexes will remain stable and consistent.
                             if (ContinuePlaying())
                             {
                                 amountTries = 1;
@@ -155,6 +162,7 @@ namespace NumbersGame
             }
         }
 
+        //Randomizes the response based on whether the guess is too high or too low
         static string RandomizeResponse(int targetNumber, int guessedNumber)
         {
             string[] belowResponses = { "Nej, ditt nummer är för lågt, gissa igen!", "Inte riktigt, mitt nummer är högre, försök igen!", "Bra gissat, men mitt tal är inte så lågt", "Bra jobbat... haha, gotcha! För lågt, gissa igen!", "För låååågt! Prova igen!"};
