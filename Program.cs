@@ -63,6 +63,7 @@ namespace NumbersGame
                             //maintaining without having to repeat code or returning
                             //arrays or tuples and hoping the data is consistently 
                             //structured and that indexes will remain stable and consistent.
+                            //That said, I'm not savvy enough with OOP to try this right now
                             if (ContinuePlaying())
                             {
                                 amountTries = 1;
@@ -189,7 +190,7 @@ namespace NumbersGame
             bool difficultyInput = false;
             int difficultySetting = 0;
             string difficultyText = " ";
-            int minRange = 0;
+            int minRange = 1;
             int maxRange = 0;
             int amountAttempts = 0;
 
@@ -208,30 +209,23 @@ namespace NumbersGame
             if (difficultySetting == 1)
             {
                 difficultyText = "Lätt";
-
-                minRange = 1;
                 maxRange = 11;
                 amountAttempts = 5;
             }
             else if (difficultySetting == 2)
             {
                 difficultyText = "Medelsvår";
-
-                minRange = 1;
                 maxRange = 21;
                 amountAttempts = 3;
             }
             else
             {
                 difficultyText = "Svår";
-
-                minRange = 1;
                 maxRange = 51;
                 amountAttempts = 3;
             }
 
-            //Reminnder that - 1 must be kept as maxValue of a random is exclusive, and minValue is inclusive
-            Console.WriteLine($"Okej, vi kör en {difficultyText} omgång, talet är mellan {minRange} och {maxRange - 1}! Du har {amountAttempts} försök på dig!");
+            Console.WriteLine($"Okej, vi kör en {difficultyText} omgång, talet är mellan {minRange} och {maxRange - 1}! Du har {amountAttempts} försök på dig!\nBörja gissa!");
 
             Random random = new Random();
             int target = random.Next(minRange, maxRange);
@@ -260,10 +254,12 @@ namespace NumbersGame
             
             if (keepPlaying == 1)
             {
+                Console.Clear();
                 return true;
             }
             else 
-            { 
+            {
+                Console.Clear();
                 Console.WriteLine("Okej, då ses vi nästa gång!");
                 return false;
             }
