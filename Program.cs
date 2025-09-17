@@ -11,10 +11,11 @@ namespace NumbersGame
             bool gameOngoing = true; 
             bool correctGuess = false;
             bool isAtGameStart = true;
-            int currentGuess = 0;
+            bool validInput = false;
             int amountTries = 1;
             int attempts = 0;
             int target = 0;
+            int currentGuess;
 
             
             //The game loop, quits if gameOngoing is false
@@ -25,26 +26,19 @@ namespace NumbersGame
                 if (isAtGameStart)
                 {
                     Console.WriteLine("Välkommen! Jag tänker på ett nummer. Kan du gissa vilket?");
-                    var targetAndAttempts = GenerateDifficulty();
-
-                    target = targetAndAttempts.Item1;
-                    attempts = targetAndAttempts.Item2;
-                    isAtGameStart = false;
+                    (target, attempts, isAtGameStart) = GenerateDifficulty();
                 }
 
-                //Makes sure that the default is that we do not have a valid input
-                //Once we have a valid input, evaluates input against target
+                //Calls MakeGuess(); to let player make a guess
                 //Informs the player if the guess is correct or not 
                 //Once game ends, after correct guess or running out of attempts
-                //Calls method to ask if player wants to restart game
-                //And resets values
-                bool validInput = false;
+                //Calls ContinuePlaying(); to ask if player wants to restart game
+                //which will also resets variables and put them at game start
 
-                while (!validInput)
-                {
-                    validInput = int.TryParse(Console.ReadLine(), out int guessInput);
-                    currentGuess = guessInput;
-                }
+
+                //Uncertain whether best practice is to declare these local using var
+                //or declaring global and make sure it is clear what these variables are
+                (currentGuess, validInput) = MakeGuess();
 
                 while (validInput && !correctGuess)
                 {
@@ -56,27 +50,9 @@ namespace NumbersGame
                         {
                             Console.WriteLine("Snyggt, du gissade rätt!");
 
-                            //This code is repeated to many  times and would
-                            //benefit from being broken out into a class with methods
-                            //A class called GameStart making all central variables
-                            //more readily available would make for an easier time 
-                            //maintaining without having to repeat code or returning
-                            //arrays or tuples and hoping the data is consistently 
-                            //structured and that indexes will remain stable and consistent.
-                            //That said, I'm not savvy enough with OOP to try this right now
-                            if (ContinuePlaying())
-                            {
-                                amountTries = 1;
-                                gameOngoing = true;
-                                isAtGameStart = true;
-                                correctGuess = false;
-                                break;
-                            }
-                            else
-                            {
-                                gameOngoing = false;
-                                break;
-                            }
+                            
+                            (amountTries, gameOngoing, isAtGameStart, correctGuess) = ContinuePlaying();
+                            break;
                         }
                         else
                         {
@@ -85,7 +61,7 @@ namespace NumbersGame
                             {
                                 Console.WriteLine("...Men du var rätt nära nu!");
                             }
-                            validInput = int.TryParse(Console.ReadLine(), out currentGuess);
+                            (currentGuess, validInput) = MakeGuess();
                         }
                     }
                     else 
@@ -95,45 +71,42 @@ namespace NumbersGame
                         {
                             Console.WriteLine("Det var i grevens tid, men du gissade rätt! Snyggt jobbat!");
 
-                            if (ContinuePlaying())
-                            {
-                                amountTries = 1;
-                                gameOngoing = true;
-                                isAtGameStart = true;
-                                correctGuess = false;
-                                break;
-                            }
-                            else
-                            {
-                                gameOngoing = false;
-                                break;
-                            }
+                            (amountTries, gameOngoing, isAtGameStart, correctGuess) = ContinuePlaying();
+                            break;
                         }
 
                         else
                         {
-                            Console.WriteLine("Tyvärr, du lyckades inte gissa talet på fem försök!");
-                            if (ContinuePlaying())
-                            {
-                                amountTries = 1;
-                                gameOngoing = true;
-                                isAtGameStart = true;
-                                correctGuess = false;
-                                break;
-                            }
-                            else
-                            {
-                                gameOngoing = false;
-                                break;
-                            }
+                            Console.WriteLine($"Tyvärr, du lyckades inte gissa talet på {attempts} försök!");
+
+                            (amountTries, gameOngoing, isAtGameStart, correctGuess) = ContinuePlaying();
+                            break;
                         }
                     } 
                 }
             }
         }
 
+        public static (int guess, bool validInput) MakeGuess()
+        {
+            int currentGuess;
+            bool validInput = false;
+
+            do
+            {
+                validInput = int.TryParse(Console.ReadLine(), out currentGuess);
+                if (!validInput)
+                {
+                    Console.WriteLine("Felaktig inmatning, gissa om!");
+                }
+
+            } while (!validInput);
+
+            return (currentGuess, validInput);
+        }
+
         //Method to evaluate whether a guess is correct or not
-        static bool CheckGuess(int targetNumber, int guessedNamber)
+        public static bool CheckGuess(int targetNumber, int guessedNamber)
         {
             
             if (guessedNamber < targetNumber)
@@ -151,7 +124,7 @@ namespace NumbersGame
         }
 
         //Method to evaluate whether a wrong guess was close or not
-        static bool IsClose(int targetNumber, int guessedNumber)
+        public static bool IsClose(int targetNumber, int guessedNumber)
         {
             if (targetNumber - guessedNumber <= 2 && targetNumber - guessedNumber >= -2)
             {
@@ -164,7 +137,7 @@ namespace NumbersGame
         }
 
         //Randomizes the response based on whether the guess is too high or too low
-        static string RandomizeResponse(int targetNumber, int guessedNumber)
+        public static string RandomizeResponse(int targetNumber, int guessedNumber)
         {
             string[] belowResponses = { "Nej, ditt nummer är för lågt, gissa igen!", "Inte riktigt, mitt nummer är högre, försök igen!", "Bra gissat, men mitt tal är inte så lågt", "Bra jobbat... haha, gotcha! För lågt, gissa igen!", "För låååågt! Prova igen!"};
             string[] aboveResponses = { "Ditt nummer är högre än mitt! Prova igen!", "Nu gissade du för högt, försök igen!", "Njae... inte riktigt, mitt nummer är lägre, försök igen!", "För högt! Testa igen med ett lägre nummer", "Bra gissat, men fel tyvärr, jag tänker på ett lägre tal" };
@@ -185,7 +158,7 @@ namespace NumbersGame
 
         //Method to generate numbers for game difficulty, attempts and target
         //Informs the player of what their chosen difficulty means
-        static (int target, int amountAttempts) GenerateDifficulty()
+        public static (int target, int amountAttempts, bool isAtGameStart) GenerateDifficulty()
         {
             bool difficultyInput = false;
             int difficultySetting = 0;
@@ -225,17 +198,17 @@ namespace NumbersGame
                 amountAttempts = 3;
             }
 
+            Console.Clear();
             Console.WriteLine($"Okej, vi kör en {difficultyText} omgång, talet är mellan {minRange} och {maxRange - 1}! Du har {amountAttempts} försök på dig!\nBörja gissa!");
 
             Random random = new Random();
             int target = random.Next(minRange, maxRange);
-            (int, int) targetAndAttempts = (target, amountAttempts);
 
-            return targetAndAttempts;
+            return (target, amountAttempts, false);
         }
 
         //Prompts the player to either restart or exit the game
-        static bool ContinuePlaying()
+        static (int resetTries, bool gameOngoing, bool isAtGameStart, bool correctGuess) ContinuePlaying()
         {
             bool inputGiven = false;
             int keepPlaying = 0;
@@ -255,13 +228,13 @@ namespace NumbersGame
             if (keepPlaying == 1)
             {
                 Console.Clear();
-                return true;
+                return (keepPlaying, true, true, false);
             }
             else 
             {
                 Console.Clear();
                 Console.WriteLine("Okej, då ses vi nästa gång!");
-                return false;
+                return (keepPlaying, false, false, false);
             }
         }
     }
