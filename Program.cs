@@ -208,7 +208,7 @@ namespace NumbersGame
         }
 
         //Prompts the player to either restart or exit the game
-        static (int resetTries, bool gameOngoing, bool isAtGameStart, bool correctGuess) ContinuePlaying()
+        public static (int resetTries, bool gameOngoing, bool isAtGameStart, bool correctGuess) ContinuePlaying()
         {
             bool inputGiven = false;
             int keepPlaying = 0;
